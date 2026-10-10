@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
 /*
 	Η συνάρτηση get_Sudoku δέχεται ένα char*, που είναι το δεύτερο όρισμα που δώθηκε στην γραμμή εντολών (πρώτο είναι το όνομα του εκτελέσημου)
@@ -64,22 +65,30 @@ int validate_Box(char**,int,int);
 */
 
 int solve_Sudoku(char**);
+void present_Sudoku(char**);
 
 int main(int argc, char *argv[]){
 	
 	if(argc == 2){
 		char ** A = get_Sudoku(argv[1]);
 		if(solve_Sudoku(A)){
-			
+			present_Sudoku(A);
 		}else{
 			printf("Το Sudoku που δώθηκε δεν έχει έγκυρη λύση.\n");
 			exit(1);
 		}
+		
+		for(int i = 0; i < 9; i++){
+			free(A[i]);	
+		}
+		free(A);
 	}
 	else{
 		printf("Δεν έχει συμπληρωθεί ο κατάλληλος αριθμός από ορίσματα. Απαιτούνται 2, υπάρχουν %d.\n",argc);	
 		exit(1);
 	}
+	
+	
 	
 	
 	return 0;	
@@ -147,10 +156,10 @@ void validate_Sudoku(char** A, int row, int col){
 	int check;
 	
 	if(row < 8){
-		printf("Το αρχείο δεν περιέχει 9 γραμμές, αλλά μόνο %d.\n",col);
+		printf("Το αρχείο δεν περιέχει 9 γραμμές, αλλά μόνο %d.\n",row);
 		exit(1);
 	}else if(col != 0){
-		printf("Το αρχείο δεν περιέχει τον απαιτούμενο αριθμό από στοιχεία, δηλαδή 81, αλλά μόνο %d.\n",(81-(9-row)));
+		printf("Το αρχείο δεν περιέχει τον απαιτούμενο αριθμό από στοιχεία, δηλαδή 81, αλλά μόνο %d.\n",(81-(9-col)));
 		exit(1);
 	}
 	
@@ -214,5 +223,25 @@ int validate_Box(char** A, int row, int col){
 	}
 	
 	return 1;
+}
+
+void present_Sudoku(char** A){
+    initscr();
+
+    for (int i = 0; i <= 9; i++) {
+        mvhline(i * 2, 0, '-', 37);
+    }
+    for (int j = 0; j <= 9; j++) {
+        mvvline(0, j * 4,'|', 19);
+    }
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            mvprintw(i * 2 + 1, j * 4 + 2,"%c", A[i][j]);
+        }
+    }
+
+    refresh();
+    getch();
+    endwin();
 }
 
